@@ -1,0 +1,2855 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>CycleNote - 簡単自転車記録</title>
+  
+  <!-- SEO & PWA Meta Tags -->
+  <meta name="description" content="3タップ以内で記録できるシンプルな自転車サイクリング＆メンテナンスログ">
+  <meta name="theme-color" content="#0d9488">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="CycleNote">
+  
+  <!-- Web App Manifest -->
+  
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  
+  <!-- Google Fonts: Outfit and Noto Sans JP -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+/* CycleNote Design System - Material Design 3 Style Sheet */
+
+/* ==================== GLOBAL VARIABLES & THEMES ==================== */
+:root {
+  /* Fonts */
+  --font-family-sans: 'Outfit', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  
+  /* Shared tokens */
+  --border-radius-sm: 8px;
+  --border-radius-md: 16px;
+  --border-radius-lg: 24px;
+  --border-radius-xl: 32px;
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --max-width: 480px;
+
+  /* HSL Color Palette - Light Mode Default */
+  --hue-teal: 172;
+  --hue-neutral: 215;
+
+  --bg-primary-hsl: var(--hue-neutral), 25%, 97%;
+  --bg-secondary-hsl: var(--hue-neutral), 0%, 100%;
+  --bg-card-hsl: var(--hue-neutral), 20%, 93%;
+  
+  --primary-hsl: var(--hue-teal), 85%, 33%;
+  --primary-hover-hsl: var(--hue-teal), 85%, 28%;
+  --primary-container-hsl: var(--hue-teal), 75%, 90%;
+  --primary-container-text-hsl: var(--hue-teal), 90%, 18%;
+
+  --text-primary-hsl: var(--hue-neutral), 40%, 10%;
+  --text-muted-hsl: var(--hue-neutral), 15%, 45%;
+  --border-hsl: var(--hue-neutral), 20%, 90%;
+  
+  --danger-hsl: 0, 75%, 55%;
+  --danger-hover-hsl: 0, 75%, 45%;
+
+  /* Derived Colors */
+  --bg-primary: hsl(var(--bg-primary-hsl));
+  --bg-secondary: hsl(var(--bg-secondary-hsl));
+  --bg-card: hsl(var(--bg-card-hsl));
+  --color-primary: hsl(var(--primary-hsl));
+  --color-primary-hover: hsl(var(--primary-hover-hsl));
+  --color-primary-container: hsl(var(--primary-container-hsl));
+  --color-primary-container-text: hsl(var(--primary-container-text-hsl));
+  --color-text: hsl(var(--text-primary-hsl));
+  --color-text-muted: hsl(var(--text-muted-hsl));
+  --color-border: hsl(var(--border-hsl));
+  --color-danger: hsl(var(--danger-hsl));
+  --color-danger-hover: hsl(var(--danger-hover-hsl));
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 24px -4px rgba(0,0,0,0.08), 0 4px 12px -2px rgba(0,0,0,0.04);
+  --shadow-inner: inset 0 2px 4px rgba(0,0,0,0.03);
+
+  /* Tab Height */
+  --nav-height: 64px;
+  --header-height: 56px;
+}
+
+/* Dark Theme Variables */
+[data-theme="dark"] {
+  --bg-primary-hsl: var(--hue-neutral), 24%, 10%;
+  --bg-secondary-hsl: var(--hue-neutral), 22%, 14%;
+  --bg-card-hsl: var(--hue-neutral), 20%, 18%;
+
+  --primary-hsl: var(--hue-teal), 80%, 50%;
+  --primary-hover-hsl: var(--hue-teal), 80%, 45%;
+  --primary-container-hsl: var(--hue-teal), 80%, 15%;
+  --primary-container-text-hsl: var(--hue-teal), 80%, 85%;
+
+  --text-primary-hsl: var(--hue-neutral), 20%, 95%;
+  --text-muted-hsl: var(--hue-neutral), 12%, 65%;
+  --border-hsl: var(--hue-neutral), 18%, 24%;
+  
+  --danger-hsl: 0, 85%, 65%;
+  --danger-hover-hsl: 0, 85%, 55%;
+
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-md: 0 8px 16px rgba(0,0,0,0.3);
+  --shadow-lg: 0 16px 32px rgba(0,0,0,0.4);
+}
+
+/* ==================== RESET & BASE STYLE ==================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+body {
+  font-family: var(--font-family-sans);
+  background-color: #000000; /* Backdrop for desktop letterboxing */
+  color: var(--color-text);
+  overflow: hidden;
+  height: 100vh;
+  height: -webkit-fill-available;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* App Container (Letterbox wrapper on desktop, full screen on mobile) */
+.app-container {
+  width: 100%;
+  max-width: var(--max-width);
+  height: 100vh;
+  height: 100dvh;
+  background-color: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 0 40px rgba(0,0,0,0.4);
+  overflow: hidden;
+}
+
+/* ==================== HEADER ==================== */
+.app-header {
+  height: var(--header-height);
+  padding: 0 16px;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+  position: sticky;
+  top: 0;
+  flex-shrink: 0;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-logo-icon {
+  color: var(--color-primary);
+}
+
+.header-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--color-primary), hsl(var(--primary-hsl), 100%, 70%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header-action-btn {
+  background: none;
+  border: none;
+  color: var(--color-text);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.header-action-btn:hover {
+  background-color: var(--color-border);
+}
+
+.header-action-btn:active {
+  transform: scale(0.95);
+}
+
+/* Show/Hide Theme Icons depending on current dataset theme */
+[data-theme="dark"] .moon-icon { display: none; }
+[data-theme="light"] .sun-icon { display: none; }
+[data-theme="dark"] .sun-icon { display: block; color: #fbbf24; }
+[data-theme="light"] .moon-icon { display: block; color: #6366f1; }
+
+/* ==================== MAIN CONTENT ==================== */
+.app-main {
+  flex: none;
+  height: calc(100% - var(--header-height) - var(--nav-height));
+  min-height: 0;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  position: relative;
+  padding-bottom: 24px;
+}
+
+/* Views switching */
+.view {
+  display: none;
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+  padding: 16px;
+}
+
+.view.active {
+  display: block;
+  opacity: 1;
+}
+
+/* Section block spacing */
+.section-container {
+  margin-bottom: 16px;
+}
+
+.mt-section {
+  margin-top: 8px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 4px;
+}
+
+.sec-icon {
+  color: var(--color-primary);
+}
+
+/* ==================== DEPARTURE BUTTON ==================== */
+.departure-btn {
+  width: 100%;
+  background: linear-gradient(135deg, hsl(var(--primary-hsl)) 0%, hsl(172, 85%, 25%) 100%);
+  border: none;
+  border-radius: var(--border-radius-lg);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  box-shadow: 0 8px 24px hsla(var(--primary-hsl), 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.departure-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.departure-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px hsla(var(--primary-hsl), 0.5);
+}
+
+.departure-btn:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 4px 12px hsla(var(--primary-hsl), 0.3);
+}
+
+.departure-btn-icon {
+  font-size: 40px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.departure-btn-label {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+
+.departure-btn-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
+  font-weight: 500;
+}
+
+/* ==================== RIDE STATUS CARD ==================== */
+.ride-status-card {
+  background: linear-gradient(135deg, hsl(172, 80%, 18%) 0%, hsl(172, 80%, 12%) 100%);
+  border: 1px solid hsl(172, 60%, 30%);
+  border-radius: var(--border-radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+[data-theme="light"] .ride-status-card {
+  background: linear-gradient(135deg, hsl(172, 75%, 90%) 0%, hsl(172, 85%, 83%) 100%);
+  border: 1px solid hsl(172, 60%, 70%);
+}
+
+.ride-status-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: hsl(172, 80%, 65%);
+  margin-bottom: 4px;
+}
+
+[data-theme="light"] .ride-status-label {
+  color: hsl(172, 85%, 25%);
+}
+
+.ride-status-time {
+  font-size: 42px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+[data-theme="light"] .ride-status-time {
+  color: hsl(172, 85%, 15%);
+}
+
+.ride-elapsed {
+  font-size: 13px;
+  color: hsl(172, 60%, 65%);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+[data-theme="light"] .ride-elapsed {
+  color: hsl(172, 60%, 35%);
+}
+
+/* ==================== RIDE ACTION GRID ==================== */
+.ride-action-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+}
+
+/* 帰宅ボタン */
+.return-btn {
+  background: linear-gradient(135deg, hsl(172, 80%, 40%) 0%, hsl(172, 80%, 30%) 100%);
+  border: none;
+  border-radius: var(--border-radius-lg);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  box-shadow: 0 6px 20px hsla(172, 80%, 40%, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.return-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.return-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px hsla(172, 80%, 40%, 0.5);
+}
+
+.return-btn:active {
+  transform: translateY(1px) scale(0.97);
+}
+
+.return-btn-icon {
+  font-size: 28px;
+}
+
+.return-btn-label {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.return-btn-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.75);
+  text-align: center;
+}
+
+/* キャンセルボタン */
+.cancel-ride-btn {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  min-width: 80px;
+}
+
+.cancel-ride-btn:hover {
+  background-color: var(--color-border);
+  border-color: var(--color-danger);
+}
+
+.cancel-ride-btn:active {
+  transform: scale(0.97);
+}
+
+.cancel-btn-icon {
+  font-size: 20px;
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+.cancel-btn-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+/* ==================== FORM LABEL AUTO BADGE ==================== */
+.form-label-auto {
+  display: inline-block;
+  background-color: var(--color-primary-container);
+  color: var(--color-primary-container-text);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 6px;
+  margin-left: 6px;
+  vertical-align: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ==================== QUICK GRID ACTIONS ==================== */
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.quick-btn {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  text-align: left;
+  min-height: 84px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.quick-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: transparent;
+  transition: var(--transition-fast);
+}
+
+.ride-btn::before {
+  background-color: var(--color-primary);
+}
+
+.maint-btn::before {
+  background-color: #6366f1; /* purple accent for maintenance */
+}
+
+/* Special button decoration for "Other..." */
+.spec-other::before {
+  background-color: var(--color-text-muted) !important;
+}
+
+.quick-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+.quick-btn:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-main {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+.btn-sub {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ==================== BOTTOM NAVIGATION ==================== */
+.bottom-nav {
+  height: var(--nav-height);
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav-item {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex: 1;
+  height: 100%;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.nav-item svg {
+  width: 24px;
+  height: 24px;
+  transition: var(--transition-fast);
+}
+
+.nav-item span {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.nav-item.active {
+  color: var(--color-primary);
+}
+
+.nav-item.active svg {
+  transform: scale(1.1);
+}
+
+/* ==================== MODALS & BOTTOM SHEETS ==================== */
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end; /* Bottom sheet layout default */
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-normal);
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-sheet {
+  width: 100%;
+  background-color: var(--bg-secondary);
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+  padding: 20px;
+  max-height: 85%;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform var(--transition-normal) cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-overlay.active .modal-sheet {
+  transform: translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.modal-close {
+  background: var(--bg-card);
+  border: none;
+  color: var(--color-text);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.modal-close:hover {
+  background-color: var(--color-border);
+}
+
+.modal-body {
+  overflow-y: auto;
+  flex: 1;
+  padding-bottom: 12px;
+}
+
+.modal-footer {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ==================== FORM ELEMENTS ==================== */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.col-6 { flex: 0 0 calc(50% - 6px); }
+.col-12 { flex: 0 0 100%; }
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: 12px 16px;
+  font-family: var(--font-family-sans);
+  font-size: 15px;
+  color: var(--color-text);
+  outline: none;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-inner);
+  user-select: text;
+}
+
+.form-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px hsl(var(--primary-hsl), 85%, 85%);
+}
+
+.form-textarea {
+  min-height: 80px;
+  resize: none;
+}
+
+/* Time Input Fields Container */
+.time-input-container {
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: 2px 8px;
+  box-shadow: var(--shadow-inner);
+}
+
+.time-input-container:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px hsl(var(--primary-hsl), 85%, 85%);
+}
+
+.time-part {
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  text-align: center;
+  padding: 8px 0;
+  width: 100%;
+}
+
+.time-part::placeholder {
+  font-size: 13px;
+}
+
+.time-sep {
+  padding: 0 4px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+/* Buttons formatting */
+button.btn-primary,
+button.btn-secondary,
+button.btn-danger {
+  padding: 12px 20px;
+  font-family: var(--font-family-sans);
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: var(--border-radius-md);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-secondary {
+  background-color: var(--bg-card);
+  color: var(--color-text);
+  border: 1px solid var(--color-border) !important;
+}
+.btn-secondary:hover {
+  background-color: var(--color-border);
+}
+.btn-secondary:active {
+  transform: scale(0.97);
+}
+
+.btn-danger {
+  background-color: var(--color-danger);
+  color: #ffffff;
+}
+.btn-danger:hover {
+  background-color: var(--color-danger-hover);
+}
+.btn-danger:active {
+  transform: scale(0.97);
+}
+
+.btn-sm {
+  padding: 8px 16px !important;
+  font-size: 13px !important;
+  border-radius: var(--border-radius-sm) !important;
+}
+
+/* ==================== DESTINATION RADIO + PICKER ==================== */
+.dest-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.dest-radio-item {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.dest-radio-item input[type="radio"] {
+  display: none; /* hide native radio */
+}
+
+.dest-radio-label {
+  padding: 7px 14px;
+  background-color: var(--bg-primary);
+  border: 1.5px solid var(--color-border);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.dest-radio-item input[type="radio"]:checked + .dest-radio-label {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px hsla(var(--primary-hsl), 0.35);
+}
+
+.dest-radio-label:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.dest-custom-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dest-custom-input {
+  flex: 1;
+}
+
+.btn-picker-open {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  background-color: var(--bg-card);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 1px;
+}
+
+.btn-picker-open:hover {
+  background-color: var(--color-primary-container);
+  border-color: var(--color-primary);
+}
+
+.btn-picker-open:active {
+  transform: scale(0.95);
+}
+
+/* ==================== DRUM-ROLL PICKER ==================== */
+.picker-overlay {
+  align-items: flex-end;
+}
+
+.picker-sheet {
+  padding-bottom: 0;
+}
+
+.picker-body {
+  padding: 0 0 8px;
+}
+
+.picker-wheel-wrapper {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+}
+
+.picker-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 70px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.picker-fade-top {
+  top: 0;
+  background: linear-gradient(to bottom, var(--bg-secondary) 10%, transparent 100%);
+}
+
+.picker-fade-bottom {
+  bottom: 0;
+  background: linear-gradient(to top, var(--bg-secondary) 10%, transparent 100%);
+}
+
+.picker-selection-band {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 44px;
+  transform: translateY(-50%);
+  background-color: var(--color-primary-container);
+  border-top: 1.5px solid var(--color-primary);
+  border-bottom: 1.5px solid var(--color-primary);
+  border-radius: 4px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.picker-drum {
+  height: 100%;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 88px 0; /* (220 - 44) / 2 = 88 */
+}
+
+.picker-drum::-webkit-scrollbar {
+  display: none;
+}
+
+.picker-item {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast), transform var(--transition-fast);
+  user-select: none;
+}
+
+.picker-item.picker-item-selected {
+  color: var(--color-primary-container-text);
+  font-size: 19px;
+}
+
+/* ==================== SELECTION LISTS ==================== */
+.list-selection-body {
+  padding: 8px 0;
+}
+
+.selection-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.select-item-btn,
+.select-maint-item-btn {
+  width: 100%;
+  padding: 14px 16px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  font-family: var(--font-family-sans);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.select-item-btn:hover,
+.select-maint-item-btn:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-container);
+  color: var(--color-primary-container-text);
+}
+
+.select-item-btn:active,
+.select-maint-item-btn:active {
+  transform: scale(0.98);
+}
+
+.selection-custom-input-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 0;
+}
+
+/* ==================== ACCORDION CATEGORIES ==================== */
+.accordion-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.accordion-group {
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+}
+
+.accordion-header {
+  padding: 14px 16px;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  background-color: var(--bg-card);
+  transition: var(--transition-fast);
+}
+
+.accordion-header:hover {
+  background-color: var(--color-border);
+}
+
+.chevron-icon {
+  transition: transform var(--transition-fast);
+  color: var(--color-text-muted);
+}
+
+.accordion-group.active .chevron-icon {
+  transform: rotate(180deg);
+}
+
+.accordion-content {
+  display: none;
+  padding: 12px;
+  flex-direction: column;
+  gap: 8px;
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--color-border);
+}
+
+.accordion-group.active .accordion-content {
+  display: flex;
+}
+
+/* ==================== HISTORY LIST ==================== */
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.history-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.history-data-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.history-data-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.history-data-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.history-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: 4px;
+}
+
+.history-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  border-radius: calc(var(--border-radius-md) - 4px);
+  padding: 10px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font-family-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.history-tab svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.history-tab.active {
+  background-color: var(--bg-secondary);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.history-tab:not(.active):hover {
+  color: var(--color-text);
+}
+
+.history-stats {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-primary);
+  background-color: var(--color-primary-container);
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Date grouping headers */
+.history-date-group {
+  margin-top: 8px;
+}
+
+.history-date-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  padding: 4px 8px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.history-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.history-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.history-card:active {
+  transform: translateY(0);
+}
+
+.card-icon-container {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-icon-cycling {
+  background-color: var(--color-primary-container);
+  color: var(--color-primary-container-text);
+}
+
+.card-icon-maint {
+  background-color: #e0e7ff; /* light indigo */
+  color: #4338ca; /* dark indigo */
+}
+
+[data-theme="dark"] .card-icon-maint {
+  background-color: #312e81;
+  color: #c7d2fe;
+}
+
+.card-details {
+  flex: 1;
+  min-width: 0; /* allows text truncation */
+}
+
+.card-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-meta {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-memo-preview {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-top: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 2px;
+  border-left: 2px solid var(--color-border);
+}
+
+/* Empty State Styling */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--color-text-muted);
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  filter: grayscale(0.2);
+}
+
+.empty-state p {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ==================== DETAIL DIALOG INFO ==================== */
+.detail-item {
+  margin-bottom: 16px;
+}
+
+.detail-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.detail-value {
+  font-size: 16px;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.detail-value-highlight {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.detail-memo {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.detail-actions {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.detail-actions > div {
+  display: flex;
+  gap: 12px;
+}
+
+/* ==================== SCROLLBARS & HELPER UTILITIES ==================== */
+.scrollable-y {
+  overflow-y: auto;
+}
+
+.mt-2 { margin-top: 8px; }
+.p-0 { padding: 0; }
+
+/* Custom nice thin scrollbar for modern browsers */
+.modal-body::-webkit-scrollbar,
+.app-main::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track,
+.app-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb,
+.app-main::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 3px;
+}
+
+/* ==================== MEDIA QUERIES FOR DESKTOP ==================== */
+@media (min-width: 480px) {
+  body {
+    background-color: #1e293b; /* nice dark slate backdrop on desktop */
+  }
+
+  .app-container {
+    height: 90vh;
+    border-radius: var(--border-radius-lg);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .modal-overlay {
+    position: absolute;
+    align-items: center; /* Center sheets on desktop */
+    padding: 24px;
+  }
+
+  .modal-sheet {
+    border-radius: var(--border-radius-lg);
+    max-width: 400px;
+  }
+
+  .modal-overlay.active .modal-sheet {
+    transform: translateY(0);
+  }
+  
+  .full-height-mobile {
+    max-height: 80% !important;
+  }
+}
+
+</style>
+</head>
+<body>
+  <!-- App Container -->
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-logo">
+        <svg class="header-logo-icon" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="5" cy="17" r="4" />
+          <circle cx="19" cy="17" r="4" />
+          <polygon points="5,17 10.5,17 9,9.5" />
+          <polygon points="9,9.5 16,9.5 10.5,17" />
+          <line x1="9" y1="9.5" x2="8.7" y2="8.0" />
+          <line x1="7.5" y1="8.0" x2="9.5" y2="8.0" stroke-width="2.2" />
+          <line x1="16" y1="9.5" x2="19" y2="17" />
+          <path d="M 16 9.5 L 16.5 8.0 L 18.0 8.0 M 18.0 8.0 Q 19.0 8.0 19.0 9.0 Q 19.0 10.0 17.5 10.0" />
+        </svg>
+        <span class="header-title">CycleNote</span>
+      </div>
+      <button id="theme-toggle-btn" class="header-action-btn" aria-label="テーマ切替">
+        <!-- Sun Icon (shown in dark mode) -->
+        <svg class="sun-icon" viewBox="0 0 24 24" width="24" height="24">
+          <path fill="currentColor" d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.02-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-12.37c-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06c.39-.38.39-1.02 0-1.41zm-12.37 12.37c-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06c.39-.38.39-1.02 0-1.41z"/>
+        </svg>
+        <!-- Moon Icon (shown in light mode) -->
+        <svg class="moon-icon" viewBox="0 0 24 24" width="24" height="24">
+          <path fill="currentColor" d="M12.3 22h-.1c-5.4-.4-9.8-4.8-10.2-10.2-.4-5.4 3-10.3 8.2-11.6.6-.1 1.2.2 1.4.7.2.5.1 1.1-.3 1.5-2.3 2.3-3 5.8-1.7 8.8 1.3 3 4.3 4.9 7.6 4.9 1 0 2-.2 3-.7.5-.2 1.1-.1 1.5.3.4.4.5 1 .3 1.5-1.4 5.2-6.3 8.6-11.7 8.2z"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Main Scrollable Content -->
+    <main class="app-main">
+      
+      <!-- Home Tab View -->
+      <section id="view-home" class="view active">
+
+        <!-- ===== IDLE STATE: 出発ボタン ===== -->
+        <div id="cycling-idle-section" class="section-container">
+          <h2 class="section-title">
+            <svg class="sec-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="5" cy="17" r="4" />
+              <circle cx="19" cy="17" r="4" />
+              <polygon points="5,17 10.5,17 9,9.5" />
+              <polygon points="9,9.5 16,9.5 10.5,17" />
+              <line x1="9" y1="9.5" x2="8.7" y2="8.0" />
+              <line x1="7.5" y1="8.0" x2="9.5" y2="8.0" stroke-width="2.2" />
+              <line x1="16" y1="9.5" x2="19" y2="17" />
+              <path d="M 16 9.5 L 16.5 8.0 L 18.0 8.0 M 18.0 8.0 Q 19.0 8.0 19.0 9.0 Q 19.0 10.0 17.5 10.0" />
+            </svg>
+            サイクリング記録
+          </h2>
+          <button id="btn-departure" class="departure-btn">
+            <span class="departure-btn-icon">🚴</span>
+            <span class="departure-btn-label">出発</span>
+            <span class="departure-btn-sub">タップして出発時刻を記録</span>
+          </button>
+        </div>
+
+        <!-- ===== RIDING STATE: 帰宅 / キャンセル ===== -->
+        <div id="cycling-riding-section" class="section-container" style="display:none;">
+          <h2 class="section-title">
+            <svg class="sec-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="5" cy="17" r="4" />
+              <circle cx="19" cy="17" r="4" />
+              <polygon points="5,17 10.5,17 9,9.5" />
+              <polygon points="9,9.5 16,9.5 10.5,17" />
+              <line x1="9" y1="9.5" x2="8.7" y2="8.0" />
+              <line x1="7.5" y1="8.0" x2="9.5" y2="8.0" stroke-width="2.2" />
+              <line x1="16" y1="9.5" x2="19" y2="17" />
+              <path d="M 16 9.5 L 16.5 8.0 L 18.0 8.0 M 18.0 8.0 Q 19.0 8.0 19.0 9.0 Q 19.0 10.0 17.5 10.0" />
+            </svg>
+            ライド中 🏃
+          </h2>
+          <!-- Departure time banner -->
+          <div class="ride-status-card">
+            <div class="ride-status-label">出発時刻</div>
+            <div class="ride-status-time" id="ride-departure-display">--:--</div>
+            <div class="ride-elapsed" id="ride-elapsed-display">経過時間を計算中...</div>
+          </div>
+          <!-- Return / Cancel -->
+          <div class="ride-action-grid">
+            <button id="btn-return" class="return-btn">
+              <span class="return-btn-icon">🏠</span>
+              <span class="return-btn-label">帰宅</span>
+              <span class="return-btn-sub">時間を自動計算して記録</span>
+            </button>
+            <button id="btn-cancel-ride" class="cancel-ride-btn">
+              <span class="cancel-btn-icon">✕</span>
+              <span class="cancel-btn-label">キャンセル</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Maintenance Quick Actions -->
+        <div class="section-container mt-section">
+          <h2 class="section-title">
+            <svg class="sec-icon" viewBox="0 0 24 24" width="20" height="20">
+              <path fill="currentColor" d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.3C.5 6.7.9 9.8 2.9 11.8c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.6z"/>
+            </svg>
+            メンテナンス記録
+          </h2>
+          <div class="quick-grid">
+            <button class="quick-btn maint-btn" data-task="チェーン注油">
+              <span class="btn-main">チェーン注油</span>
+              <span class="btn-sub">Lubricate Chain</span>
+            </button>
+            <button class="quick-btn maint-btn" data-task="チェーン清掃">
+              <span class="btn-main">チェーン清掃</span>
+              <span class="btn-sub">Clean Chain</span>
+            </button>
+            <button class="quick-btn maint-btn" data-task="空気補充">
+              <span class="btn-main">空気補充</span>
+              <span class="btn-sub">Inflate Tires</span>
+            </button>
+            <button class="quick-btn maint-btn" data-task="フレーム清掃">
+              <span class="btn-main">フレーム清掃</span>
+              <span class="btn-sub">Clean Frame</span>
+            </button>
+            <button class="quick-btn maint-btn spec-other" id="btn-maint-other">
+              <span class="btn-main">その他...</span>
+              <span class="btn-sub">Other Tasks</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- History Tab View -->
+      <section id="view-history" class="view">
+        <div class="section-container">
+          <div class="history-header">
+            <h2 class="section-title">
+              <svg class="sec-icon" viewBox="0 0 24 24" width="20" height="20">
+                <path fill="currentColor" d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+              </svg>
+              ログ履歴
+            </h2>
+            <div class="history-header-actions">
+              <button type="button" id="btn-export-data" class="history-data-btn" aria-label="データをエクスポート" title="バックアップを保存">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </button>
+              <button type="button" id="btn-import-data" class="history-data-btn" aria-label="データをインポート" title="バックアップから復元">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </button>
+              <input type="file" id="import-file-input" accept=".json,application/json" hidden>
+              <div class="history-stats" id="history-counter">0件</div>
+            </div>
+          </div>
+
+          <div class="history-tabs" role="tablist" aria-label="履歴の種類">
+            <button type="button" class="history-tab active" data-filter="cycling" role="tab" aria-selected="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="5" cy="17" r="4"/><circle cx="19" cy="17" r="4"/>
+                <polygon points="5,17 10.5,17 9,9.5"/><polygon points="9,9.5 16,9.5 10.5,17"/>
+              </svg>
+              <span>サイクリング</span>
+            </button>
+            <button type="button" class="history-tab" data-filter="maintenance" role="tab" aria-selected="false">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.3C.5 6.7.9 9.8 2.9 11.8c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.6z"/></svg>
+              <span>メンテナンス</span>
+            </button>
+          </div>
+          
+          <!-- History List container -->
+          <div id="history-list" class="history-list">
+            <!-- Dynamically populated via JS -->
+            <div class="empty-state">
+              <div class="empty-icon">🚴</div>
+              <p>記録がまだありません。<br>ホームからサイクリングやメンテナンスを記録しましょう！</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+      <button id="nav-home" class="nav-item active">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+        <span>ホーム</span>
+      </button>
+      <button id="nav-history" class="nav-item">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        <span>履歴</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ==================== MODALS & SHEETS ==================== -->
+
+  <!-- Cycling Form Modal Sheet -->
+  <div id="modal-cycling" class="modal-overlay">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 class="modal-title">サイクリング記録</h3>
+        <button class="modal-close" data-close-target="modal-cycling" aria-label="閉じる">&times;</button>
+      </div>
+      <form id="form-cycling" class="modal-body">
+        <input type="hidden" id="cycling-id">
+        
+        <div class="form-group">
+          <label for="cycling-date" class="form-label">日付</label>
+          <input type="date" id="cycling-date" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">行き先</label>
+          <!-- Preset radio buttons -->
+          <div class="dest-radio-group" id="dest-radio-group">
+            <label class="dest-radio-item">
+              <input type="radio" name="cycling-dest-radio" value="権現ダム">
+              <span class="dest-radio-label">権現ダム</span>
+            </label>
+            <label class="dest-radio-item">
+              <input type="radio" name="cycling-dest-radio" value="向島公園">
+              <span class="dest-radio-label">向島公園</span>
+            </label>
+            <label class="dest-radio-item">
+              <input type="radio" name="cycling-dest-radio" value="大蔵海岸">
+              <span class="dest-radio-label">大蔵海岸</span>
+            </label>
+            <label class="dest-radio-item">
+              <input type="radio" name="cycling-dest-radio" value="明石海峡大橋">
+              <span class="dest-radio-label">明石海峡大橋</span>
+            </label>
+            <label class="dest-radio-item">
+              <input type="radio" name="cycling-dest-radio" value="舞子公園">
+              <span class="dest-radio-label">舞子公園</span>
+            </label>
+          </div>
+          <!-- Free text input + picker button -->
+          <div class="dest-custom-row">
+            <input type="text" id="cycling-dest" class="form-input dest-custom-input" placeholder="または自由入力..." required>
+            
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-6">
+            <label for="cycling-dist" class="form-label">距離 (km)</label>
+            <input type="number" id="cycling-dist" class="form-input" placeholder="例: 25.5" step="any" min="0" inputmode="decimal">
+          </div>
+          <div class="form-group col-6">
+            <label class="form-label">全体時間 <span class="form-label-auto">自動計算</span></label>
+            <div class="time-input-container">
+              <input type="number" id="cycling-total-h" class="form-input time-part" placeholder="時間" min="0">
+              <span class="time-sep">:</span>
+              <input type="number" id="cycling-total-m" class="form-input time-part" placeholder="分" min="0" max="59">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-12">
+            <label for="cycling-ride-time" class="form-label">走行時間 (hh:mm)</label>
+            <div class="time-input-container">
+              <input type="number" id="cycling-ride-h" class="form-input time-part" placeholder="時間" min="0">
+              <span class="time-sep">:</span>
+              <input type="number" id="cycling-ride-m" class="form-input time-part" placeholder="分" min="0" max="59">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cycling-memo" class="form-label">メモ</label>
+          <textarea id="cycling-memo" class="form-input form-textarea" placeholder="路面状況、向かい風、コンディションなど..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" data-close-target="modal-cycling">キャンセル</button>
+          <button type="submit" class="btn-primary">保存する</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Maintenance Form Modal Sheet -->
+  <div id="modal-maintenance" class="modal-overlay">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 class="modal-title">メンテナンス記録</h3>
+        <button class="modal-close" data-close-target="modal-maintenance" aria-label="閉じる">&times;</button>
+      </div>
+      <form id="form-maintenance" class="modal-body">
+        <input type="hidden" id="maint-id">
+
+        <div class="form-group">
+          <label for="maint-date" class="form-label">日付</label>
+          <input type="date" id="maint-date" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label for="maint-task" class="form-label">作業名</label>
+          <input type="text" id="maint-task" class="form-input" placeholder="例: チェーン注油" required>
+        </div>
+
+        <div class="form-group">
+          <label for="maint-memo" class="form-label">メモ</label>
+          <textarea id="maint-memo" class="form-input form-textarea" placeholder="使用オイル、ネジの締め付けトルク、消耗度など..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" data-close-target="modal-maintenance">キャンセル</button>
+          <button type="submit" class="btn-primary">保存する</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Other Maintenance Tasks Categories Dialog Sheet -->
+  <div id="modal-maint-other" class="modal-overlay">
+    <div class="modal-sheet modal-medium full-height-mobile">
+      <div class="modal-header">
+        <h3 class="modal-title">作業項目を選択</h3>
+        <button class="modal-close" data-close-target="modal-maint-other" aria-label="閉じる">&times;</button>
+      </div>
+      <div class="modal-body list-selection-body scrollable-y">
+        <div class="accordion-container">
+          <!-- 駆動系 -->
+          <div class="accordion-group">
+            <div class="accordion-header">
+              <span>駆動系 (Drivetrain)</span>
+              <svg class="chevron-icon" viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+            </div>
+            <div class="accordion-content">
+              <button class="select-maint-item-btn" data-task="チェーン完全脱脂">チェーン完全脱脂</button>
+              <button class="select-maint-item-btn" data-task="スプロケット清掃">スプロケット清掃</button>
+              <button class="select-maint-item-btn" data-task="クランク清掃">クランク清掃</button>
+              <button class="select-maint-item-btn" data-task="チェーン交換">チェーン交換</button>
+              <button class="select-maint-item-btn" data-task="スプロケット交換">スプロケット交換</button>
+              <button class="select-maint-item-btn" data-task="チェーンリング交換">チェーンリング交換</button>
+            </div>
+          </div>
+
+          <!-- タイヤ -->
+          <div class="accordion-group">
+            <div class="accordion-header">
+              <span>タイヤ (Tires)</span>
+              <svg class="chevron-icon" viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+            </div>
+            <div class="accordion-content">
+              <button class="select-maint-item-btn" data-task="タイヤ交換">タイヤ交換</button>
+              <button class="select-maint-item-btn" data-task="チューブ交換">チューブ交換</button>
+              <button class="select-maint-item-btn" data-task="パンク修理">パンク修理</button>
+            </div>
+          </div>
+
+          <!-- ブレーキ -->
+          <div class="accordion-group">
+            <div class="accordion-header">
+              <span>ブレーキ (Brakes)</span>
+              <svg class="chevron-icon" viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+            </div>
+            <div class="accordion-content">
+              <button class="select-maint-item-btn" data-task="ブレーキ調整">ブレーキ調整</button>
+              <button class="select-maint-item-btn" data-task="ブレーキシュー交換">ブレーキシュー交換</button>
+            </div>
+          </div>
+
+          <!-- 変速 -->
+          <div class="accordion-group">
+            <div class="accordion-header">
+              <span>変速 (Shifting)</span>
+              <svg class="chevron-icon" viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+            </div>
+            <div class="accordion-content">
+              <button class="select-maint-item-btn" data-task="ディレイラー調整">ディレイラー調整</button>
+              <button class="select-maint-item-btn" data-task="シフトワイヤー交換">シフトワイヤー交換</button>
+            </div>
+          </div>
+
+          <!-- ホイール -->
+          <div class="accordion-group">
+            <div class="accordion-header">
+              <span>ホイール (Wheels)</span>
+              <svg class="chevron-icon" viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+            </div>
+            <div class="accordion-content">
+              <button class="select-maint-item-btn" data-task="リム清掃">リム清掃</button>
+              <button class="select-maint-item-btn" data-task="振れ取り">振れ取り</button>
+            </div>
+          </div>
+
+          <!-- 車体 -->
+          <div class="accordion-group">
+            <div class="accordion-header">
+              <span>車体 (Frame & Body)</span>
+              <svg class="chevron-icon" viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+            </div>
+            <div class="accordion-content">
+              <button class="select-maint-item-btn" data-task="フレームワックス">フレームワックス</button>
+              <button class="select-maint-item-btn" data-task="ボルト増し締め">ボルト増し締め</button>
+            </div>
+          </div>
+
+          <!-- その他 -->
+          <div class="accordion-group">
+            <div class="accordion-header">
+              <span>その他 (Others)</span>
+              <svg class="chevron-icon" viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+            </div>
+            <div class="accordion-content">
+              <button class="select-maint-item-btn" data-task="アクセサリー追加">アクセサリー追加</button>
+              <button class="select-maint-item-btn" data-task="アクセサリー交換">アクセサリー交換</button>
+              
+              <div class="selection-custom-input-group mt-2">
+                <input type="text" id="maint-custom-task-input" class="form-input" placeholder="作業内容を自由入力...">
+                <button type="button" id="btn-custom-maint-submit" class="btn-primary btn-sm">決定</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail & Action Dialog (Edit/Delete log) -->
+  <div id="modal-detail" class="modal-overlay">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 class="modal-title" id="detail-title">ログ詳細</h3>
+        <button class="modal-close" data-close-target="modal-detail" aria-label="閉じる">&times;</button>
+      </div>
+      <div class="modal-body scrollable-y" id="detail-content">
+        <!-- Dynamically populated via JS -->
+      </div>
+      <div class="modal-footer detail-actions">
+        <button type="button" class="btn-danger" id="btn-detail-delete">削除</button>
+        <div>
+          <button type="button" class="btn-secondary" data-close-target="modal-detail">閉じる</button>
+          <button type="button" class="btn-primary" id="btn-detail-edit">編集</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+/**
+ * CycleNote - Application Logic Ver.2.0
+ * Pure vanilla JavaScript with no dependencies.
+ * Implements Departure → Return / Cancel state machine.
+ */
+
+// ==================== STATE MANAGEMENT ====================
+let appRecords = [];
+let currentDetailRecordId = null;
+let elapsedTimer = null;
+let historyFilter = 'cycling'; // 'cycling' | 'maintenance'
+
+// Preset destinations (shared by radio buttons and picker)
+const PRESET_DESTINATIONS = [
+  '権現ダム',
+  '向島公園',
+  '大蔵海岸',
+  '明石海峡大橋',
+  '舞子公園'
+];
+
+// LocalStorage keys
+const KEY_RECORDS     = 'cyclenote_records';
+const KEY_BACKUP      = 'cyclenote_records_backup';
+const KEY_BACKUP_TIME = 'cyclenote_backup_time';
+const KEY_CURRENT     = 'cyclenote_currentRide'; // { departureTime: ISO string }
+const KEY_THEME       = 'cyclenote_theme';
+
+// DOM Elements
+const elements = {
+  // Navigation & Views
+  navHome: document.getElementById('nav-home'),
+  navHistory: document.getElementById('nav-history'),
+  viewHome: document.getElementById('view-home'),
+  viewHistory: document.getElementById('view-history'),
+  appMain: document.querySelector('.app-main'),
+
+  // Theme
+  themeToggle: document.getElementById('theme-toggle-btn'),
+
+  // Cycling state sections
+  cyclingIdleSection:   document.getElementById('cycling-idle-section'),
+  cyclingRidingSection: document.getElementById('cycling-riding-section'),
+  btnDeparture:         document.getElementById('btn-departure'),
+  btnReturn:            document.getElementById('btn-return'),
+  btnCancelRide:        document.getElementById('btn-cancel-ride'),
+  rideDepartureDisplay: document.getElementById('ride-departure-display'),
+  rideElapsedDisplay:   document.getElementById('ride-elapsed-display'),
+
+  // Modals & Overlays
+  modalCycling:   document.getElementById('modal-cycling'),
+  modalMaint:     document.getElementById('modal-maintenance'),
+  modalMaintOther: document.getElementById('modal-maint-other'),
+  modalDetail:    document.getElementById('modal-detail'),
+
+  // Forms
+  formCycling: document.getElementById('form-cycling'),
+  formMaint:   document.getElementById('form-maintenance'),
+
+  // Form Inputs: Cycling
+  cyclingId:    document.getElementById('cycling-id'),
+  cyclingDate:  document.getElementById('cycling-date'),
+  cyclingDest:  document.getElementById('cycling-dest'),
+  cyclingDist:  document.getElementById('cycling-dist'),
+  cyclingTotalH: document.getElementById('cycling-total-h'),
+  cyclingTotalM: document.getElementById('cycling-total-m'),
+  cyclingRideH: document.getElementById('cycling-ride-h'),
+  cyclingRideM: document.getElementById('cycling-ride-m'),
+  cyclingMemo:  document.getElementById('cycling-memo'),
+
+  // Form Inputs: Maintenance
+  maintId:   document.getElementById('maint-id'),
+  maintDate: document.getElementById('maint-date'),
+  maintTask: document.getElementById('maint-task'),
+  maintMemo: document.getElementById('maint-memo'),
+
+  // Other Maintenance selection elements
+  maintCustomTask:      document.getElementById('maint-custom-task-input'),
+  btnCustomMaintSubmit: document.getElementById('btn-custom-maint-submit'),
+
+  // Destination picker elements
+  modalDestPicker:   document.getElementById('modal-dest-picker'),
+  btnDestPicker:     document.getElementById('btn-dest-picker'),
+  btnPickerCancel:   document.getElementById('btn-picker-cancel'),
+  btnPickerCancel2:  document.getElementById('btn-picker-cancel2'),
+  btnPickerConfirm:  document.getElementById('btn-picker-confirm'),
+  pickerDrum:        document.getElementById('picker-drum'),
+
+  // History List Container
+  historyList:    document.getElementById('history-list'),
+  historyCounter: document.getElementById('history-counter'),
+  historyTabs:    document.querySelectorAll('.history-tab'),
+  btnExportData:  document.getElementById('btn-export-data'),
+  btnImportData:  document.getElementById('btn-import-data'),
+  importFileInput: document.getElementById('import-file-input'),
+
+  // Detail Modal Elements
+  detailTitle:     document.getElementById('detail-title'),
+  detailContent:   document.getElementById('detail-content'),
+  btnDetailDelete: document.getElementById('btn-detail-delete'),
+  btnDetailEdit:   document.getElementById('btn-detail-edit')
+};
+
+// ==================== APP INITIALIZATION ====================
+document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
+  loadRecords();
+  updateRideUI();       // Restore ride state on launch
+  registerEventListeners();
+  registerServiceWorker();
+});
+
+// ==================== THEME MANAGEMENT ====================
+function initTheme() {
+  const savedTheme = localStorage.getItem(KEY_THEME);
+  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem(KEY_THEME, newTheme);
+}
+
+// ==================== STORAGE OPERATIONS ====================
+function loadRecords() {
+  let raw = localStorage.getItem(KEY_RECORDS);
+  if (!raw) {
+    raw = localStorage.getItem(KEY_BACKUP);
+    if (raw) {
+      localStorage.setItem(KEY_RECORDS, raw);
+    }
+  }
+  if (raw) {
+    try {
+      appRecords = JSON.parse(raw);
+      sortRecords();
+    } catch (e) {
+      console.error('Error parsing records:', e);
+      appRecords = [];
+    }
+  } else {
+    appRecords = [];
+  }
+}
+
+function saveRecords() {
+  sortRecords();
+  const data = JSON.stringify(appRecords);
+  localStorage.setItem(KEY_RECORDS, data);
+  localStorage.setItem(KEY_BACKUP, data);
+  localStorage.setItem(KEY_BACKUP_TIME, new Date().toISOString());
+  renderHistory();
+}
+
+function sortRecords() {
+  appRecords.sort((a, b) => {
+    if (a.date !== b.date) return b.date.localeCompare(a.date);
+    return b.id.localeCompare(a.id);
+  });
+}
+
+// ==================== RIDE STATE MACHINE ====================
+
+/**
+ * Returns the current ride object from localStorage, or null if no ride in progress.
+ */
+function getCurrentRide() {
+  const raw = localStorage.getItem(KEY_CURRENT);
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
+}
+
+/**
+ * Called when user taps 出発 (Departure).
+ * Records the current timestamp and switches UI to "riding" state.
+ */
+function handleDeparture() {
+  const rideData = { departureTime: new Date().toISOString() };
+  localStorage.setItem(KEY_CURRENT, JSON.stringify(rideData));
+  updateRideUI();
+}
+
+/**
+ * Called when user taps キャンセル (Cancel).
+ * Discards the stored departure time and returns to idle state.
+ */
+function handleCancelRide() {
+  localStorage.removeItem(KEY_CURRENT);
+  clearInterval(elapsedTimer);
+  elapsedTimer = null;
+  updateRideUI();
+}
+
+/**
+ * Called when user taps 帰宅 (Return home).
+ * Computes elapsed time and pre-fills the cycling form.
+ */
+function handleReturn() {
+  const ride = getCurrentRide();
+  if (!ride) return;
+
+  const departure = new Date(ride.departureTime);
+  const arrival   = new Date();
+  const elapsedMs = arrival - departure;
+
+  const totalMinutes = Math.round(elapsedMs / 60000);
+  const totalH = Math.floor(totalMinutes / 60);
+  const totalM = totalMinutes % 60;
+
+  // Clear the in-progress ride
+  localStorage.removeItem(KEY_CURRENT);
+  clearInterval(elapsedTimer);
+  elapsedTimer = null;
+
+  // Open cycling form pre-filled with auto-calculated time
+  openCyclingFormWithTime(totalH, totalM, departure);
+  updateRideUI();
+}
+
+/**
+ * Updates the home screen cycling section visibility based on current ride state.
+ */
+function updateRideUI() {
+  const ride = getCurrentRide();
+
+  if (ride) {
+    // ---- RIDING STATE ----
+    elements.cyclingIdleSection.style.display   = 'none';
+    elements.cyclingRidingSection.style.display = 'block';
+
+    // Show departure time in local HH:MM format
+    const departure = new Date(ride.departureTime);
+    elements.rideDepartureDisplay.textContent = formatTimeHHMM(departure);
+
+    // Start / restart elapsed timer
+    clearInterval(elapsedTimer);
+    updateElapsedDisplay(departure);
+    elapsedTimer = setInterval(() => updateElapsedDisplay(departure), 10000);
+  } else {
+    // ---- IDLE STATE ----
+    elements.cyclingIdleSection.style.display   = 'block';
+    elements.cyclingRidingSection.style.display = 'none';
+
+    clearInterval(elapsedTimer);
+    elapsedTimer = null;
+  }
+}
+
+function updateElapsedDisplay(departure) {
+  const now     = new Date();
+  const diffMs  = now - departure;
+  const diffMin = Math.floor(diffMs / 60000);
+  const h       = Math.floor(diffMin / 60);
+  const m       = diffMin % 60;
+  if (h === 0) {
+    elements.rideElapsedDisplay.textContent = `経過 ${m}分`;
+  } else {
+    elements.rideElapsedDisplay.textContent = `経過 ${h}時間${m}分`;
+  }
+}
+
+// Format a Date object to "HH:MM" in local time
+function formatTimeHHMM(date) {
+  const h = String(date.getHours()).padStart(2, '0');
+  const m = String(date.getMinutes()).padStart(2, '0');
+  return `${h}:${m}`;
+}
+
+// ==================== VIEW ROUTING ====================
+function switchView(viewId, filter) {
+  if (filter) {
+    historyFilter = filter;
+    updateHistoryTabs();
+  }
+  if (viewId === 'home') {
+    elements.navHome.classList.add('active');
+    elements.navHistory.classList.remove('active');
+    elements.viewHome.classList.add('active');
+    elements.viewHistory.classList.remove('active');
+  } else if (viewId === 'history') {
+    elements.navHome.classList.remove('active');
+    elements.navHistory.classList.add('active');
+    elements.viewHome.classList.remove('active');
+    elements.viewHistory.classList.add('active');
+    renderHistory();
+  }
+  elements.appMain.scrollTop = 0;
+}
+
+function updateHistoryTabs() {
+  elements.historyTabs.forEach(tab => {
+    const isActive = tab.dataset.filter === historyFilter;
+    tab.classList.toggle('active', isActive);
+    tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  });
+}
+
+function setHistoryFilter(filter) {
+  historyFilter = filter;
+  updateHistoryTabs();
+  renderHistory();
+}
+
+// ==================== MODAL HELPERS ====================
+function openModal(modal) {
+  if (!modal) return;
+  modal.classList.add('active');
+}
+
+function closeModal(modal) {
+  if (!modal) return;
+  modal.classList.remove('active');
+}
+
+function getTodayDateString() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function closeAllModals() {
+  closeModal(elements.modalCycling);
+  closeModal(elements.modalMaint);
+  closeModal(elements.modalMaintOther);
+  closeModal(elements.modalDetail);
+  closeModal(elements.modalDestPicker);
+}
+
+// ==================== EVENT LISTENERS ====================
+function registerEventListeners() {
+  // Navigation
+  elements.navHome.addEventListener('click', () => switchView('home'));
+  elements.navHistory.addEventListener('click', () => switchView('history'));
+
+  // History sub-tabs
+  elements.historyTabs.forEach(tab => {
+    tab.addEventListener('click', () => setHistoryFilter(tab.dataset.filter));
+  });
+
+  // Data backup export / import
+  elements.btnExportData.addEventListener('click', exportRecordsToFile);
+  elements.btnImportData.addEventListener('click', () => elements.importFileInput.click());
+  elements.importFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) importRecordsFromFile(file);
+    e.target.value = '';
+  });
+
+  // Theme
+  elements.themeToggle.addEventListener('click', toggleTheme);
+
+  // Close modals by data-close-target
+  document.querySelectorAll('[data-close-target]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetModal = document.getElementById(btn.getAttribute('data-close-target'));
+      closeModal(targetModal);
+    });
+  });
+
+  // Close modals by clicking backdrop
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeModal(overlay);
+    });
+  });
+
+  // --- Cycling ride state buttons ---
+  elements.btnDeparture.addEventListener('click', handleDeparture);
+  elements.btnReturn.addEventListener('click', handleReturn);
+  elements.btnCancelRide.addEventListener('click', handleCancelRide);
+
+  // --- Destination radio buttons ↔ text input sync ---
+  document.querySelectorAll('input[name="cycling-dest-radio"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      if (radio.checked) {
+        elements.cyclingDest.value = radio.value;
+      }
+    });
+  });
+
+  // When user types in the text field, clear any radio selection
+  elements.cyclingDest.addEventListener('input', () => {
+    const val = elements.cyclingDest.value.trim();
+    const matchingRadio = document.querySelector(`input[name="cycling-dest-radio"][value="${val}"]`);
+    document.querySelectorAll('input[name="cycling-dest-radio"]').forEach(r => r.checked = false);
+    if (matchingRadio) matchingRadio.checked = true;
+  });
+
+  // Round distance to 1 decimal on blur (e.g. 25.56 → 25.6)
+  elements.cyclingDist.addEventListener('blur', () => {
+    const val = elements.cyclingDist.value;
+    if (val !== '') {
+      const rounded = roundToOneDecimal(val);
+      if (rounded !== null) elements.cyclingDist.value = formatDistanceDisplay(rounded);
+    }
+  });
+
+  // --- Drum-roll picker (no_picker variant: elements may be absent) ---
+  if (elements.btnDestPicker) {
+    elements.btnDestPicker.addEventListener('click', openDestPicker);
+  }
+  if (elements.btnPickerCancel) {
+    elements.btnPickerCancel.addEventListener('click', () => closeModal(elements.modalDestPicker));
+  }
+  if (elements.btnPickerCancel2) {
+    elements.btnPickerCancel2.addEventListener('click', () => closeModal(elements.modalDestPicker));
+  }
+  if (elements.btnPickerConfirm) {
+    elements.btnPickerConfirm.addEventListener('click', confirmDestPicker);
+  }
+
+  // --- Maintenance Quick Action Buttons ---
+  document.querySelectorAll('.maint-btn:not(.spec-other)').forEach(btn => {
+    btn.addEventListener('click', () => openMaintForm(btn.getAttribute('data-task')));
+  });
+
+  document.getElementById('btn-maint-other').addEventListener('click', () => {
+    openModal(elements.modalMaintOther);
+  });
+
+  // Accordion behavior
+  document.querySelectorAll('.accordion-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const group    = header.parentElement;
+      const isActive = group.classList.contains('active');
+      document.querySelectorAll('.accordion-group').forEach(g => g.classList.remove('active'));
+      if (!isActive) group.classList.add('active');
+    });
+  });
+
+  // Maintenance item selection
+  document.querySelectorAll('.select-maint-item-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      closeModal(elements.modalMaintOther);
+      openMaintForm(btn.getAttribute('data-task'));
+    });
+  });
+
+  // Custom maintenance task
+  elements.btnCustomMaintSubmit.addEventListener('click', () => {
+    const customTask = elements.maintCustomTask.value.trim();
+    if (customTask) {
+      closeModal(elements.modalMaintOther);
+      openMaintForm(customTask);
+      elements.maintCustomTask.value = '';
+    }
+  });
+
+  // Form submits
+  elements.formCycling.addEventListener('submit', (e) => { e.preventDefault(); saveCyclingRecord(); });
+  elements.formMaint.addEventListener('submit',   (e) => { e.preventDefault(); saveMaintRecord(); });
+
+  // Detail actions
+  elements.btnDetailDelete.addEventListener('click', () => deleteRecord(currentDetailRecordId));
+  elements.btnDetailEdit.addEventListener('click',   () => editRecord(currentDetailRecordId));
+}
+
+// ==================== FORM MANAGEMENT: CYCLING ====================
+
+/**
+ * Open cycling form after 帰宅 — pre-fills total duration from auto-calculation.
+ * @param {number} totalH  - Calculated hours
+ * @param {number} totalM  - Calculated minutes
+ * @param {Date}   departure - Departure Date object (used for date field)
+ */
+// ==================== DESTINATION PICKER (DRUM-ROLL) ====================
+function openDestPicker() {
+  // Populate drum if empty
+  const drum = elements.pickerDrum;
+  drum.innerHTML = '';
+  PRESET_DESTINATIONS.forEach(dest => {
+    const item = document.createElement('div');
+    item.className = 'picker-item';
+    item.textContent = dest;
+    item.dataset.value = dest;
+    drum.appendChild(item);
+  });
+
+  // Determine initial scroll position based on current text input
+  const currentVal = elements.cyclingDest.value.trim();
+  let initIdx = PRESET_DESTINATIONS.indexOf(currentVal);
+  if (initIdx < 0) initIdx = 0;
+
+  openModal(elements.modalDestPicker);
+
+  // Scroll to initial item after modal transition
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      scrollPickerTo(initIdx, false);
+      updatePickerHighlight();
+    }, 50);
+  });
+
+  // Update highlight on scroll
+  drum.addEventListener('scroll', onPickerScroll, { passive: true });
+}
+
+function scrollPickerTo(index, smooth = true) {
+  const ITEM_H = 44;
+  elements.pickerDrum.scrollTo({
+    top: index * ITEM_H,
+    behavior: smooth ? 'smooth' : 'instant'
+  });
+}
+
+function getPickerSelectedIndex() {
+  const ITEM_H = 44;
+  return Math.round(elements.pickerDrum.scrollTop / ITEM_H);
+}
+
+function onPickerScroll() {
+  updatePickerHighlight();
+}
+
+function updatePickerHighlight() {
+  const idx = getPickerSelectedIndex();
+  elements.pickerDrum.querySelectorAll('.picker-item').forEach((item, i) => {
+    item.classList.toggle('picker-item-selected', i === idx);
+  });
+}
+
+function confirmDestPicker() {
+  const idx   = getPickerSelectedIndex();
+  const items = elements.pickerDrum.querySelectorAll('.picker-item');
+  if (items[idx]) {
+    const selected = items[idx].dataset.value;
+    elements.cyclingDest.value = selected;
+    // Sync radio button
+    document.querySelectorAll('input[name="cycling-dest-radio"]').forEach(r => {
+      r.checked = (r.value === selected);
+    });
+  }
+  // Remove scroll listener
+  elements.pickerDrum.removeEventListener('scroll', onPickerScroll);
+  closeModal(elements.modalDestPicker);
+}
+
+// ==================== FORM MANAGEMENT: CYCLING ====================
+function openCyclingFormWithTime(totalH, totalM, departure) {
+  // Determine the date from departure (ride might have started yesterday)
+  const rideDate = `${departure.getFullYear()}-${String(departure.getMonth()+1).padStart(2,'0')}-${String(departure.getDate()).padStart(2,'0')}`;
+
+  elements.cyclingId.value    = '';
+  elements.cyclingDate.value  = rideDate;
+  elements.cyclingDest.value  = '';
+  elements.cyclingDist.value  = '';
+  elements.cyclingTotalH.value = totalH > 0 ? totalH : '0';
+  elements.cyclingTotalM.value = totalM > 0 ? totalM : '0';
+  elements.cyclingRideH.value  = '';
+  elements.cyclingRideM.value  = '';
+  elements.cyclingMemo.value   = '';
+
+  // Clear all radio selections (destination not yet chosen)
+  document.querySelectorAll('input[name="cycling-dest-radio"]').forEach(r => r.checked = false);
+
+  openModal(elements.modalCycling);
+}
+
+/**
+ * Open cycling form for edit (existing record) or blank new entry.
+ */
+function openCyclingForm(destination = '', record = null) {
+  if (record) {
+    elements.cyclingId.value   = record.id;
+    elements.cyclingDate.value = record.date;
+    elements.cyclingDest.value = record.destination;
+    elements.cyclingDist.value = record.distance !== null ? formatDistanceDisplay(record.distance) : '';
+
+    const totalParts = record.durationTotal ? record.durationTotal.split(':') : ['', ''];
+    elements.cyclingTotalH.value = totalParts[0] || '';
+    elements.cyclingTotalM.value = totalParts[1] || '';
+
+    const rideParts = record.durationRide ? record.durationRide.split(':') : ['', ''];
+    elements.cyclingRideH.value = rideParts[0] || '';
+    elements.cyclingRideM.value = rideParts[1] || '';
+
+    elements.cyclingMemo.value = record.memo || '';
+    // Sync radio
+    syncDestRadio(record.destination);
+  } else {
+    elements.cyclingId.value    = '';
+    elements.cyclingDate.value  = getTodayDateString();
+    elements.cyclingDest.value  = destination;
+    elements.cyclingDist.value  = '';
+    elements.cyclingTotalH.value = '';
+    elements.cyclingTotalM.value = '';
+    elements.cyclingRideH.value  = '';
+    elements.cyclingRideM.value  = '';
+    elements.cyclingMemo.value   = '';
+    syncDestRadio(destination);
+  }
+
+  openModal(elements.modalCycling);
+}
+
+/** Round a numeric value to one decimal place (四捨五入). Returns null if invalid. */
+function roundToOneDecimal(value) {
+  const num = parseFloat(value);
+  if (isNaN(num) || num < 0) return null;
+  return Math.round(num * 10) / 10;
+}
+
+function formatDistanceDisplay(distance) {
+  if (distance === null || distance === undefined) return '';
+  return distance.toFixed(1);
+}
+
+// ==================== DATA BACKUP (EXPORT / IMPORT) ====================
+function buildBackupPayload() {
+  return {
+    app: 'CycleNote',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    records: appRecords
+  };
+}
+
+function exportRecordsToFile() {
+  const payload = buildBackupPayload();
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `cyclenote_backup_${getTodayDateString()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importRecordsFromFile(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      let incoming = [];
+      if (Array.isArray(parsed)) {
+        incoming = parsed;
+      } else if (parsed && Array.isArray(parsed.records)) {
+        incoming = parsed.records;
+      } else {
+        alert('バックアップファイルの形式が正しくありません。');
+        return;
+      }
+
+      const valid = incoming.filter(r => r && r.id && r.type && r.date);
+      if (valid.length === 0) {
+        alert('インポートできる記録が見つかりませんでした。');
+        return;
+      }
+
+      const existingIds = new Set(appRecords.map(r => r.id));
+      const newRecords = valid.filter(r => !existingIds.has(r.id));
+      const merge = confirm(
+        `${valid.length}件の記録が見つかりました。\n` +
+        `新規 ${newRecords.length}件を追加します（既存IDは上書きしません）。\n\n` +
+        `続行しますか？`
+      );
+      if (!merge) return;
+
+      appRecords = appRecords.concat(newRecords);
+      saveRecords();
+      alert(`${newRecords.length}件の記録をインポートしました。`);
+    } catch (e) {
+      console.error('Import failed:', e);
+      alert('ファイルの読み込みに失敗しました。');
+    }
+  };
+  reader.readAsText(file);
+}
+
+/** Sync radio buttons to match the given destination string */
+function syncDestRadio(dest) {
+  document.querySelectorAll('input[name="cycling-dest-radio"]').forEach(r => {
+    r.checked = (r.value === dest);
+  });
+}
+
+function saveCyclingRecord() {
+  const id          = elements.cyclingId.value || 'ride_' + Date.now();
+  const date        = elements.cyclingDate.value;
+  const destination = elements.cyclingDest.value.trim();
+  const distanceVal = elements.cyclingDist.value;
+  let distance = null;
+  if (distanceVal !== '') {
+    distance = roundToOneDecimal(distanceVal);
+    if (distance === null) {
+      alert('距離には0以上の数値を入力してください。');
+      return;
+    }
+    elements.cyclingDist.value = formatDistanceDisplay(distance);
+  }
+
+  const totalH = elements.cyclingTotalH.value;
+  const totalM = elements.cyclingTotalM.value;
+  let durationTotal = '';
+  if (totalH !== '' || totalM !== '') {
+    const h = String(parseInt(totalH, 10) || 0).padStart(2, '0');
+    const m = String(parseInt(totalM, 10) || 0).padStart(2, '0');
+    durationTotal = `${h}:${m}`;
+  }
+
+  const rideH = elements.cyclingRideH.value;
+  const rideM = elements.cyclingRideM.value;
+  let durationRide = '';
+  if (rideH !== '' || rideM !== '') {
+    const h = String(parseInt(rideH, 10) || 0).padStart(2, '0');
+    const m = String(parseInt(rideM, 10) || 0).padStart(2, '0');
+    durationRide = `${h}:${m}`;
+  }
+
+  const memo = elements.cyclingMemo.value.trim();
+
+  const recordObj = { id, type: 'cycling', date, destination, distance, durationTotal, durationRide, memo };
+
+  const existingIdx = appRecords.findIndex(r => r.id === id);
+  if (existingIdx !== -1) {
+    appRecords[existingIdx] = recordObj;
+  } else {
+    appRecords.push(recordObj);
+  }
+
+  saveRecords();
+  closeModal(elements.modalCycling);
+  switchView('history', 'cycling');
+}
+
+// ==================== FORM MANAGEMENT: MAINTENANCE ====================
+function openMaintForm(taskName = '', record = null) {
+  if (record) {
+    elements.maintId.value   = record.id;
+    elements.maintDate.value = record.date;
+    elements.maintTask.value = record.taskName;
+    elements.maintMemo.value = record.memo || '';
+  } else {
+    elements.maintId.value   = '';
+    elements.maintDate.value = getTodayDateString();
+    elements.maintTask.value = taskName;
+    elements.maintMemo.value = '';
+  }
+  openModal(elements.modalMaint);
+}
+
+function saveMaintRecord() {
+  const id       = elements.maintId.value || 'maint_' + Date.now();
+  const date     = elements.maintDate.value;
+  const taskName = elements.maintTask.value.trim();
+  const memo     = elements.maintMemo.value.trim();
+
+  const recordObj = { id, type: 'maintenance', date, taskName, memo };
+
+  const existingIdx = appRecords.findIndex(r => r.id === id);
+  if (existingIdx !== -1) {
+    appRecords[existingIdx] = recordObj;
+  } else {
+    appRecords.push(recordObj);
+  }
+
+  saveRecords();
+  closeModal(elements.modalMaint);
+  switchView('history', 'maintenance');
+}
+
+// ==================== HISTORY RENDER LOGIC ====================
+function renderHistory() {
+  const container = elements.historyList;
+  container.innerHTML = '';
+
+  const filtered = appRecords.filter(r => r.type === historyFilter);
+  elements.historyCounter.textContent = `${filtered.length}件`;
+
+  if (filtered.length === 0) {
+    const icon = historyFilter === 'cycling' ? '🚴' : '🔧';
+    const msg = historyFilter === 'cycling'
+      ? 'サイクリング記録がまだありません。<br>ホームから出発・帰宅を記録しましょう！'
+      : 'メンテナンス記録がまだありません。<br>ホームから作業を記録しましょう！';
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">${icon}</div>
+        <p>${msg}</p>
+      </div>
+    `;
+    return;
+  }
+
+  const grouped = {};
+  filtered.forEach(record => {
+    if (!grouped[record.date]) grouped[record.date] = [];
+    grouped[record.date].push(record);
+  });
+
+  Object.keys(grouped).forEach(dateStr => {
+    const dateGroupDiv = document.createElement('div');
+    dateGroupDiv.className = 'history-date-group';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'history-date-title';
+    titleEl.textContent = formatDateHeader(dateStr);
+    dateGroupDiv.appendChild(titleEl);
+
+    grouped[dateStr].forEach(record => {
+      dateGroupDiv.appendChild(createHistoryCard(record));
+    });
+
+    container.appendChild(dateGroupDiv);
+  });
+}
+
+function createHistoryCard(record) {
+  const card = document.createElement('div');
+  card.className = 'history-card';
+  card.addEventListener('click', () => openDetailModal(record.id));
+
+  const isCycling = record.type === 'cycling';
+  const iconContainer = document.createElement('div');
+  iconContainer.className = `card-icon-container ${isCycling ? 'card-icon-cycling' : 'card-icon-maint'}`;
+
+  const bikeIconSvg   = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="5" cy="17" r="4" />
+    <circle cx="19" cy="17" r="4" />
+    <polygon points="5,17 10.5,17 9,9.5" />
+    <polygon points="9,9.5 16,9.5 10.5,17" />
+    <line x1="9" y1="9.5" x2="8.7" y2="8.0" />
+    <line x1="7.5" y1="8.0" x2="9.5" y2="8.0" stroke-width="2.2" />
+    <line x1="16" y1="9.5" x2="19" y2="17" />
+    <path d="M 16 9.5 L 16.5 8.0 L 18.0 8.0 M 18.0 8.0 Q 19.0 8.0 19.0 9.0 Q 19.0 10.0 17.5 10.0" />
+  </svg>`;
+  const wrenchIconSvg = `<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.3C.5 6.7.9 9.8 2.9 11.8c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.6z"/></svg>`;
+
+  iconContainer.innerHTML = isCycling ? bikeIconSvg : wrenchIconSvg;
+
+  const cardDetails = document.createElement('div');
+  cardDetails.className = 'card-details';
+
+  const titleRow = document.createElement('div');
+  titleRow.className = 'card-title-row';
+  const title = document.createElement('div');
+  title.className = 'card-title';
+  title.textContent = isCycling ? record.destination : record.taskName;
+  titleRow.appendChild(title);
+  cardDetails.appendChild(titleRow);
+
+  const meta = document.createElement('div');
+  meta.className = 'card-meta';
+  if (isCycling) {
+    if (record.distance !== null) {
+      const distSpan = document.createElement('span');
+      distSpan.innerHTML = `<strong>${formatDistanceDisplay(record.distance)}</strong> km`;
+      meta.appendChild(distSpan);
+    }
+    const timeVal = record.durationRide || record.durationTotal;
+    if (timeVal) {
+      const timeSpan = document.createElement('span');
+      timeSpan.textContent = formatDurationDisplay(timeVal);
+      meta.appendChild(timeSpan);
+    }
+  } else {
+    const taskTag = document.createElement('span');
+    taskTag.textContent = 'メンテナンス';
+    meta.appendChild(taskTag);
+  }
+  cardDetails.appendChild(meta);
+
+  if (record.memo) {
+    const snippet = document.createElement('div');
+    snippet.className = 'card-memo-preview';
+    snippet.textContent = record.memo;
+    cardDetails.appendChild(snippet);
+  }
+
+  card.appendChild(iconContainer);
+  card.appendChild(cardDetails);
+  return card;
+}
+
+function formatDateHeader(dateStr) {
+  try {
+    const parts   = dateStr.split('-');
+    const year    = parseInt(parts[0], 10);
+    const month   = parseInt(parts[1], 10);
+    const day     = parseInt(parts[2], 10);
+    const d       = new Date(year, month - 1, day);
+    const weekday = ['日','月','火','水','木','金','土'][d.getDay()];
+    return `${year}年${month}月${day}日 (${weekday})`;
+  } catch { return dateStr; }
+}
+
+function formatDurationDisplay(durationStr) {
+  if (!durationStr) return '';
+  const parts = durationStr.split(':');
+  const h = parseInt(parts[0], 10) || 0;
+  const m = parseInt(parts[1], 10) || 0;
+  if (h === 0) return `${m}分`;
+  return `${h}時間${m}分`;
+}
+
+// ==================== DETAIL VIEW & DELETE/EDIT ACTIONS ====================
+function openDetailModal(id) {
+  const record = appRecords.find(r => r.id === id);
+  if (!record) return;
+
+  currentDetailRecordId = id;
+  const isCycling = record.type === 'cycling';
+
+  elements.detailTitle.textContent = isCycling ? 'サイクリング詳細' : 'メンテナンス詳細';
+
+  let html = `
+    <div class="detail-item">
+      <div class="detail-label">日付</div>
+      <div class="detail-value">${formatDateHeader(record.date)}</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">${isCycling ? '行き先' : '作業内容'}</div>
+      <div class="detail-value-highlight">${isCycling ? record.destination : record.taskName}</div>
+    </div>
+  `;
+
+  if (isCycling) {
+    if (record.distance !== null) {
+      html += `
+        <div class="detail-item">
+          <div class="detail-label">走行距離</div>
+          <div class="detail-value"><strong>${formatDistanceDisplay(record.distance)}</strong> km</div>
+        </div>
+      `;
+    }
+    if (record.durationTotal) {
+      html += `
+        <div class="detail-item">
+          <div class="detail-label">全体時間</div>
+          <div class="detail-value">${formatDurationDisplay(record.durationTotal)}</div>
+        </div>
+      `;
+    }
+    if (record.durationRide) {
+      html += `
+        <div class="detail-item">
+          <div class="detail-label">走行時間</div>
+          <div class="detail-value">${formatDurationDisplay(record.durationRide)}</div>
+        </div>
+      `;
+    }
+  }
+
+  html += `
+    <div class="detail-item">
+      <div class="detail-label">メモ</div>
+      <div class="detail-memo ${!record.memo ? 'color-text-muted' : ''}">${record.memo ? escapeHTML(record.memo) : '（メモなし）'}</div>
+    </div>
+  `;
+
+  elements.detailContent.innerHTML = html;
+  openModal(elements.modalDetail);
+}
+
+function deleteRecord(id) {
+  if (confirm('この記録を削除してもよろしいですか？')) {
+    appRecords = appRecords.filter(r => r.id !== id);
+    saveRecords();
+    closeModal(elements.modalDetail);
+    renderHistory();
+  }
+}
+
+function editRecord(id) {
+  const record = appRecords.find(r => r.id === id);
+  if (!record) return;
+  closeModal(elements.modalDetail);
+  if (record.type === 'cycling') {
+    openCyclingForm('', record);
+  } else {
+    openMaintForm('', record);
+  }
+}
+
+function escapeHTML(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+// ==================== SERVICE WORKER REGISTRATION ====================
+function registerServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(reg => console.log('CycleNote PWA SW registered:', reg.scope))
+        .catch(err => console.error('SW registration failed:', err));
+    });
+  }
+}
+
+</script>
+</body>
+</html>
