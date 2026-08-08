@@ -480,6 +480,53 @@
     ::-webkit-scrollbar { width: 3px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ── TOAST (alert() の代わりの非ブロッキング通知) ── */
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(28px + var(--safe-b));
+      transform: translateX(-50%) translateY(16px);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      max-width: 86vw;
+      text-align: center;
+      box-shadow: 0 8px 28px rgba(0,0,0,.5);
+      z-index: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease, transform .25s ease;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    #toast.error {
+      border-color: rgba(255,79,106,.5);
+      color: var(--danger);
+    }
+
+    /* ── TEXT PASTE IMPORT (ファイル選択がうまくいかない環境向けの代替手段) ── */
+    #import-text-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      resize: vertical;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    #import-text-input:focus { border-color: var(--accent); }
+    #import-text-input::placeholder { color: var(--text-dim); }
   </style>
 </head>
 <body>
@@ -511,7 +558,7 @@
     
     <!-- バージョン表示 -->
     <div style="text-align: center; color: var(--text-dim); font-size: 11px; margin-top: 40px; margin-bottom: 10px; opacity: 0.6;">
-      v4.1
+      v4.2
     </div>
   </div>
 
@@ -519,6 +566,9 @@
   <button id="fab" title="タスクを追加">+</button>
 
 </div>
+
+<!-- 通知トースト -->
+<div id="toast"></div>
 
 <!-- ════ TAB MANAGE MODAL ════ -->
 <div class="modal-overlay" id="tab-modal-overlay">
@@ -537,6 +587,15 @@
         <button class="btn-ghost" id="import-btn" style="flex: 1; font-size: 14px; padding: 10px;">バックアップ読込</button>
       </div>
       <input type="file" id="import-file-input" accept=".json" style="display: none;" />
+
+      <!-- ファイル選択での読込がうまくいかない場合の代替手段 -->
+      <div style="margin-top: 14px;">
+        <div style="font-size: 11px; color: var(--text-dim); margin-bottom: 8px; line-height: 1.5;">
+          読込がうまくいかない場合は、バックアップファイルの中身をコピーしてここに貼り付けてください
+        </div>
+        <textarea id="import-text-input" rows="3" placeholder="ここにバックアップJSONを貼り付け…"></textarea>
+        <button class="btn-ghost" id="import-text-btn" style="width: 100%; margin-top: 8px; font-size: 14px; padding: 10px;">テキストから読込</button>
+      </div>
     </div>
 
     <div class="modal-footer">
@@ -878,6 +937,20 @@ mainEl.addEventListener('touchend', e => {
 }, { passive: true });
 
 /* ══════════════════════════════════════════
+   TOAST（alert() は standalone PWA 環境で
+   フリーズ/再読込を誘発することがあるため使わない）
+   ══════════════════════════════════════════ */
+let toastTimer = null;
+function showToast(msg, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.toggle('error', isError);
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+/* ══════════════════════════════════════════
    BACKUP & RESTORE
    ══════════════════════════════════════════ */
 document.getElementById('export-btn').onclick = () => {
@@ -892,7 +965,40 @@ document.getElementById('export-btn').onclick = () => {
   downloadAnchor.remove();
   /* Blob URL はもう不要なので解放（メモリリーク防止） */
   URL.revokeObjectURL(url);
+  showToast('バックアップを保存しました。');
 };
+
+/* インポートされたオブジェクトを検証して state に反映する共通処理。
+   ファイル経由・テキスト貼り付け経由の両方から呼ばれる。
+   件数を成功メッセージに含めることで、「読込に成功したのに空だった」
+   場合と「本当に読込自体が失敗した」場合を切り分けられるようにする。 */
+function applyImportedState(importedState) {
+  const valid = importedState
+    && Array.isArray(importedState.tabs)
+    && typeof importedState.data === 'object'
+    && importedState.data !== null;
+
+  if (!valid) {
+    showToast('無効なデータ形式です。バックアップ用のJSONを確認してください。', true);
+    return false;
+  }
+
+  state = importedState;
+  if (!state.tabs.length) state.tabs = ['家', '自転車', '買い物'];
+  if (!state.data || typeof state.data !== 'object') state.data = {};
+  if (state.activeTab === undefined || state.activeTab >= state.tabs.length) state.activeTab = 0;
+
+  save();
+  render();
+
+  let taskCount = 0;
+  Object.values(state.data).forEach(d => {
+    taskCount += (d && d.tasks ? d.tasks.length : 0) + (d && d.done ? d.done.length : 0);
+  });
+  showToast(`読込完了: タブ${state.tabs.length}個 / タスク${taskCount}件`);
+  tabModal.classList.remove('open');
+  return true;
+}
 
 const fileInput = document.getElementById('import-file-input');
 document.getElementById('import-btn').onclick = () => {
@@ -902,29 +1008,39 @@ document.getElementById('import-btn').onclick = () => {
 fileInput.onchange = e => {
   const file = e.target.files[0];
   if (!file) return;
-  
+
   const reader = new FileReader();
   reader.onload = event => {
     try {
       const importedState = JSON.parse(event.target.result);
-      if (importedState && Array.isArray(importedState.tabs) && typeof importedState.data === 'object') {
-        state = importedState;
-        if (!state.tabs.length) state.tabs = ['家', '自転車', '買い物'];
-        if (state.activeTab === undefined || state.activeTab >= state.tabs.length) state.activeTab = 0;
-        
-        save();
-        render();
-        alert('データを正常に読み込みました。');
-        tabModal.classList.remove('open');
-      } else {
-        alert('無効なファイル形式です。バックアップ用のJSONファイルを選択してください。');
-      }
+      applyImportedState(importedState);
     } catch (err) {
-      alert('ファイルの読み込みに失敗しました。');
+      showToast('ファイルの読み込みに失敗しました。', true);
     }
   };
-  reader.readAsText(file);
+  reader.onerror = () => showToast('ファイルの読み込みに失敗しました。', true);
+  /* 文字コードを明示的に UTF-8 指定（環境によってはデフォルトの
+     文字コード判定が異なり、日本語が正しく読めないことがあるため） */
+  reader.readAsText(file, 'UTF-8');
   fileInput.value = '';
+};
+
+/* ファイル選択がうまくいかない環境向けの、テキスト貼り付けによる代替読込 */
+document.getElementById('import-text-btn').onclick = () => {
+  const textInput = document.getElementById('import-text-input');
+  const raw = textInput.value.trim();
+  if (!raw) {
+    showToast('貼り付けられたテキストがありません。', true);
+    return;
+  }
+  try {
+    const importedState = JSON.parse(raw);
+    if (applyImportedState(importedState)) {
+      textInput.value = '';
+    }
+  } catch (err) {
+    showToast('テキストの解析に失敗しました。JSON形式を確認してください。', true);
+  }
 };
 
 /* ══════════════════════════════════════════
