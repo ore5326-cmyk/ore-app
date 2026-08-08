@@ -1,6 +1,6 @@
 {
-  "name": "ToDo2",
-  "short_name": "ToDo2",
+  "name": "ToDo",
+  "short_name": "ToDo",
   "description": "シンプルなタブ付き ToDo アプリ",
   "start_url": "./index.html",
   "scope": "./",
