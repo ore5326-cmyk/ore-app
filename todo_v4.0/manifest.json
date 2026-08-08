@@ -1,0 +1,25 @@
+{
+  "name": "ToDo2",
+  "short_name": "ToDo2",
+  "description": "シンプルなタブ付き ToDo アプリ",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#7c6aff",
+  "background_color": "#0d0f14",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
